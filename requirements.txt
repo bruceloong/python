@@ -1,0 +1,21 @@
+# 基础阶段依赖
+pytest==7.4.0
+colorama==0.4.6
+
+# 中级阶段依赖
+Flask==2.3.3
+Flask-WTF==1.1.1
+Jinja2==3.1.2
+SQLAlchemy==2.0.20
+WTForms==3.0.1
+
+# 高级阶段依赖
+Flask-RESTful==0.3.10
+Flask-SQLAlchemy==3.0.5
+Flask-Login==0.6.2
+Flask-Migrate==4.0.4
+Flask-CORS==4.0.0
+matplotlib==3.7.2
+pandas==2.0.3
+gunicorn==21.2.0
+python-dotenv==1.0.0 

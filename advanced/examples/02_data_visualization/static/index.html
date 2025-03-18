@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>高级数据可视化示例</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- 引入Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- 引入axios用于API请求 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+    <!-- 引入中国地图数据 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/map/js/china.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <div class="container">
+          <h1>数据可视化仪表板</h1>
+          <nav>
+            <ul>
+              <li>
+                <a
+                  href="#"
+                  @click.prevent="switchSection('dashboard')"
+                  :class="{ active: currentSection === 'dashboard' }"
+                  >仪表板</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  @click.prevent="switchSection('time-series')"
+                  :class="{ active: currentSection === 'time-series' }"
+                  >时间序列</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  @click.prevent="switchSection('categories')"
+                  :class="{ active: currentSection === 'categories' }"
+                  >分类数据</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  @click.prevent="switchSection('geo')"
+                  :class="{ active: currentSection === 'geo' }"
+                  >地理数据</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  @click.prevent="switchSection('advanced')"
+                  :class="{ active: currentSection === 'advanced' }"
+                  >高级图表</a
+                >
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main class="container">
+        <!-- 加载状态 -->
+        <div class="loading" v-if="loading">
+          <div class="spinner"></div>
+          <p>加载数据中...</p>
+        </div>
+
+        <!-- 错误提示 -->
+        <div class="error-message" v-if="error">
+          <p>{{ error }}</p>
+          <button @click="fetchData">重试</button>
+        </div>
+
+        <!-- 仪表板 -->
+        <section v-if="currentSection === 'dashboard' && !loading">
+          <h2>数据概览仪表板</h2>
+          <div class="dashboard-grid">
+            <!-- 仪表盘卡片 -->
+            <div class="card">
+              <h3>系统状态</h3>
+              <div class="chart-container" id="gauge-chart"></div>
+            </div>
+            <!-- 销售概览卡片 -->
+            <div class="card">
+              <h3>销售概览</h3>
+              <div class="chart-container" id="sales-overview-chart"></div>
+            </div>
+            <!-- 分类销售卡片 -->
+            <div class="card">
+              <h3>分类销售</h3>
+              <div class="chart-container" id="category-chart"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 时间序列 -->
+        <section v-if="currentSection === 'time-series' && !loading">
+          <h2>时间序列分析</h2>
+          <div class="controls">
+            <div class="form-group">
+              <label for="time-range">时间范围</label>
+              <select
+                id="time-range"
+                v-model="timeRange"
+                @change="fetchTimeSeriesData"
+              >
+                <option value="30">最近30天</option>
+                <option value="60">最近60天</option>
+                <option value="90">最近90天</option>
+              </select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="chart-container" id="time-series-chart"></div>
+          </div>
+          <div class="card">
+            <h3>指标趋势</h3>
+            <div class="chart-container" id="trend-chart"></div>
+          </div>
+        </section>
+
+        <!-- 分类数据 -->
+        <section v-if="currentSection === 'categories' && !loading">
+          <h2>分类数据分析</h2>
+          <div class="card-grid">
+            <div class="card">
+              <h3>销售分布</h3>
+              <div class="chart-container" id="category-pie-chart"></div>
+            </div>
+            <div class="card">
+              <h3>指标对比</h3>
+              <div class="chart-container" id="category-bar-chart"></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>分类雷达图</h3>
+            <div class="chart-container" id="radar-chart"></div>
+          </div>
+        </section>
+
+        <!-- 地理数据 -->
+        <section v-if="currentSection === 'geo' && !loading">
+          <h2>地理数据分析</h2>
+          <div class="card">
+            <h3>中国地区分布图</h3>
+            <div class="chart-container" id="geo-chart"></div>
+          </div>
+        </section>
+
+        <!-- 高级图表 -->
+        <section v-if="currentSection === 'advanced' && !loading">
+          <h2>高级数据可视化</h2>
+          <div class="card-grid">
+            <div class="card">
+              <h3>聚类散点图</h3>
+              <div class="chart-container" id="scatter-chart"></div>
+            </div>
+            <div class="card">
+              <h3>网络关系图</h3>
+              <div class="chart-container" id="network-chart"></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>数据流图</h3>
+            <div class="chart-container" id="sankey-chart"></div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="container">
+          <p>高级数据可视化示例 | Python全栈开发课程</p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- 引入自定义脚本 -->
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
